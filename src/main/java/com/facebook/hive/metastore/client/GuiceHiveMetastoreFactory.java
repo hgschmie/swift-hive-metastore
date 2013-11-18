@@ -16,10 +16,13 @@
 package com.facebook.hive.metastore.client;
 
 import com.facebook.swift.service.ThriftClient;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HostAndPort;
 import com.google.inject.Inject;
 
 import org.apache.thrift.transport.TTransportException;
+
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -40,24 +43,36 @@ public class GuiceHiveMetastoreFactory
     @Override
     public HiveMetastore getDefaultClient() throws InterruptedException, TTransportException
     {
-        return new RetryingHiveMetastore(hiveMetastoreClientConfig.getHostAndPort(), hiveMetastoreClientConfig, thriftClient);
+        return new RetryingHiveMetastore(ImmutableSet.of(hiveMetastoreClientConfig.getHostAndPort()), hiveMetastoreClientConfig, thriftClient);
     }
 
     @Override
     public HiveMetastore getClientForHost(final HostAndPort hostAndPort) throws InterruptedException, TTransportException
     {
-        return new RetryingHiveMetastore(hostAndPort, hiveMetastoreClientConfig, thriftClient);
+        return new RetryingHiveMetastore(ImmutableSet.of(hostAndPort), hiveMetastoreClientConfig, thriftClient);
     }
 
     @Override
     public HiveMetastore getClientForHost(final HiveMetastoreClientConfig config) throws InterruptedException, TTransportException
     {
-        return new RetryingHiveMetastore(config.getHostAndPort(), config, thriftClient);
+        return new RetryingHiveMetastore(ImmutableSet.of(config.getHostAndPort()), config, thriftClient);
     }
 
     @Override
     public HiveMetastore get() throws InterruptedException, TTransportException
     {
         return getDefaultClient();
+    }
+
+    @Override
+    public HiveMetastore getClientForHost(Set<HostAndPort> hostAndPorts) throws InterruptedException, TTransportException
+    {
+        return new RetryingHiveMetastore(hostAndPorts, hiveMetastoreClientConfig, thriftClient);
+    }
+
+    @Override
+    public HiveMetastore getClientForHost(Set<HostAndPort> hostAndPorts, HiveMetastoreClientConfig config) throws InterruptedException, TTransportException
+    {
+        return new RetryingHiveMetastore(hostAndPorts, config, thriftClient);
     }
 }

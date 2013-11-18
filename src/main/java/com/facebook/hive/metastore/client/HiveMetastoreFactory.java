@@ -19,6 +19,8 @@ import com.google.common.net.HostAndPort;
 
 import org.apache.thrift.transport.TTransportException;
 
+import java.util.Set;
+
 public interface HiveMetastoreFactory
     extends HiveMetastoreProvider<HiveMetastore>
 {
@@ -37,4 +39,16 @@ public interface HiveMetastoreFactory
      * Return a client connected to the store described in the {@link HiveMetastoreClientConfig} object.
      */
     HiveMetastore getClientForHost(HiveMetastoreClientConfig config) throws InterruptedException, TTransportException;
+
+    /**
+     * Return a client connected to one of the stores described in the the supplied set of {@link HostAndPort} elements.
+     * All additional settings are taken from the default configuration settings. When retrying, another store is used.
+     */
+    HiveMetastore getClientForHost(Set<HostAndPort> hostAndPorts) throws InterruptedException, TTransportException;
+
+    /**
+     * Return a client connected to one of the stores described in the the supplied set of {@link HostAndPort} elements.
+     * All additional settings are taken from the configuration supplied. When retrying, another store is used.
+     */
+    HiveMetastore getClientForHost(Set<HostAndPort> hostAndPorts, HiveMetastoreClientConfig config) throws InterruptedException, TTransportException;
 }
